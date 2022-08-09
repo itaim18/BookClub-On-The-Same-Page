@@ -1,5 +1,6 @@
 //jshint esversion:6
 
+const date = require(__dirname + "/date.js");
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -8,13 +9,19 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
-const findOrCreate = require("mongoose-findorcreate");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const findOrCreate = require("mongoose-findorcreate");
+const { boolean } = require("mathjs");
+const FacebookStrategy = require("passport-facebook").Strategy;
 const app = express();
 
 app.use(express.static("public"));
 app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 
 app.use(
   session({
@@ -23,25 +30,48 @@ app.use(
     saveUninitialized: false,
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 mongoose.connect("mongodb://localhost:27017/userDB", { useNewUrlParser: true });
+// mongoose.set("useCreateIndex", true);
 
+const commentSchema = new mongoose.Schema({
+  commenterName: String,
+  comment: String,
+  commentLikes: Number,
+});
+const postSchema = new mongoose.Schema({
+  username: String,
+  bookName: String,
+  review: String,
+  date: Date,
+  likes: Number,
+  // comments: commentSchema,
+});
 const userSchema = new mongoose.Schema({
   email: String,
   password: String,
   googleId: String,
-  secret: String,
+  facebookId: String,
+  isPost: Boolean,
+  post: postSchema,
 });
+
 userSchema.plugin(passportLocalMongoose);
 userSchema.plugin(findOrCreate);
+
 const User = new mongoose.model("User", userSchema);
+const Post = new mongoose.model("Post", postSchema);
+const Comment = new mongoose.model("Comment", commentSchema);
+
 passport.use(User.createStrategy());
 
 passport.serializeUser(function (user, done) {
   done(null, user.id);
 });
+
 passport.deserializeUser(function (id, done) {
   User.findById(id, function (err, user) {
     done(err, user);
@@ -53,12 +83,27 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/google/secrets",
+      callbackURL: "http://localhost:3000/auth/google/bookclub",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     function (accessToken, refreshToken, profile, cb) {
-      //   console.log(profile);
+      console.log(profile);
+
       User.findOrCreate({ googleId: profile.id }, function (err, user) {
+        return cb(err, user);
+      });
+    }
+  )
+);
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.CLIENT_ID_FB,
+      clientSecret: process.env.CLIENT_SECRET_FB,
+      callbackURL: "http://localhost:3000/auth/facebook/bookclub",
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      User.findOrCreate({ facebookId: profile.id }, function (err, user) {
         return cb(err, user);
       });
     }
@@ -68,57 +113,89 @@ passport.use(
 app.get("/", function (req, res) {
   res.render("home");
 });
+
+app.get("/auth/facebook", passport.authenticate("facebook"));
+
+app.get(
+  "/auth/facebook/bookclub",
+  passport.authenticate("facebook", { failureRedirect: "/" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect("/booksFeed");
+  }
+);
+
 app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile"] })
 );
+
 app.get(
-  "/auth/google/secrets",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  "/auth/google/bookclub",
+  passport.authenticate("google", { failureRedirect: "/" }),
   function (req, res) {
-    res.redirect("/secrets");
+    // Successful authentication, redirect to secrets.
+    res.redirect("/booksFeed");
   }
 );
 
-app.get("/login", function (req, res) {
-  res.render("login");
-});
 app.get("/register", function (req, res) {
   res.render("register");
 });
-app.get("/secrets", function (req, res) {
-  User.find({ secret: { $ne: null } }, function (err, results) {
+
+app.get("/booksFeed", function (req, res) {
+  const renderDate = date.getDate();
+  let renderDay = new Date();
+  User.find({ isPost: 1 }, function (err, foundUsers) {
     if (err) {
       console.log(err);
     } else {
-      if (results) {
-        res.render("secrets", { usersWithSecrets: results });
+      if (foundUsers) {
+        res.render("booksFeed", {
+          usersWithReviews: foundUsers,
+          renderDay: renderDay,
+          renderDate: renderDate,
+        });
       }
     }
   });
 });
-
+app.get("/logout", function (req, response) {
+  req.logout(function (req, res) {
+    response.redirect("/");
+  });
+});
 app.get("/submit", function (req, res) {
   if (req.isAuthenticated()) {
     res.render("submit");
   } else {
-    res.redirect("/login");
+    res.redirect("/");
   }
 });
 
-app.get("/logout", function (req, res) {
-  req.logout(function (err) {
+app.post("/submit", function (req, res) {
+  const submittedPost = req.body.post;
+  //const postDate = date.getDate();
+  let postDay = new Date();
+  User.findById(req.user.id, function (err, foundUser) {
     if (err) {
       console.log(err);
     } else {
-      res.redirect("/");
+      if (foundUser) {
+        foundUser.post.date = postDay;
+        foundUser.post.review = submittedPost;
+        foundUser.isPost = 1;
+        foundUser.save(function () {
+          res.redirect("/booksFeed");
+        });
+      }
     }
   });
 });
 
 app.post("/register", function (req, res) {
   User.register(
-    { username: req.body.username },
+    { username: req.body.username, post: { username: req.body.username } },
     req.body.password,
     function (err, user) {
       if (err) {
@@ -126,34 +203,18 @@ app.post("/register", function (req, res) {
         res.redirect("/register");
       } else {
         passport.authenticate("local")(req, res, function () {
-          res.redirect("/secrets");
+          res.redirect("/booksFeed");
         });
       }
     }
   );
 });
 
-app.post("/submit", function (req, res) {
-  const submittedSecret = req.body.secret;
-
-  User.findById(req.user.id, function (err, foundUser) {
-    if (err) {
-      console.log(err);
-    } else {
-      if (foundUser) {
-        foundUser.secret = submittedSecret;
-        foundUser.save(function () {
-          res.redirect("/secrets");
-        });
-      }
-    }
-  });
-});
-
-app.post("/login", function (req, res) {
+app.post("/", function (req, res) {
   const user = new User({
     username: req.body.username,
     password: req.body.password,
+    post: { username: req.body.username },
   });
 
   req.login(user, function (err) {
@@ -161,7 +222,7 @@ app.post("/login", function (req, res) {
       console.log(err);
     } else {
       passport.authenticate("local")(req, res, function () {
-        res.redirect("/secrets");
+        res.redirect("/booksFeed");
       });
     }
   });

@@ -1,9 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500&display=swap');
 *{
-    padding: 0;
-    margin: 0;
+    /* padding: 0;
+    margin: 0; */
     font-family: 'Ubuntu', sans-serif;
-    
 }
 :root{
     --primary-color: #F1C5AE;
@@ -15,18 +14,26 @@
     
 }
 body{
-    background-color: var(--primary-color);color: var(--paragraph-color);
-}
-.login{
-margin-top: 200px;
-}
-.img-fluid{
-    width: 50%;
-    height: 50%;
-    
+    background-color: var(--primary-color);
+    color: var(--paragraph-color);
 }
 
-.welcome-img{
+.home-img{
     padding-bottom: 10px;
     padding-top: 10px;
+  
 }
+
+@media only screen and (max-width: 990px) {
+    .home-img{
+        width:75%;
+        height:75%;
+    }
+  }
+  @media only screen and (max-width: 600px) {
+    .home-img{
+        width:50%;
+        height:50%;
+        align-self: center;
+    }
+  }
