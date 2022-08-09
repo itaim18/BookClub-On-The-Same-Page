@@ -10,12 +10,13 @@
                   <div class="row justify-content-center">
 <div class="card" style="width: 48rem">
     <div class="border border-left border-right px-0">
-        <a href="/logout" class="btn btn-info btn-lg">
+        <div class="row justify-content-between ">
+        <a href="/logout" class="btn btn-info btn-lg" style="margin-left:5%">
     <i class="fa fa-sign-out" aria-hidden="true"></i> Log out
   </a>
-  <a href="/submit" class="btn btn-primary btn-lg">
+  <a href="/submit" class="btn btn-primary btn-lg" style="margin-right:5%">
     <i class="fa fa-paper-plane" aria-hidden="true"></i> Go to Submit page
-  </a>
+  </a></div>
       <div class="p-3 border-bottom">
         <h4 class="d-flex align-items-center mb-0">
             Books Feed <i class="far fa-xs fa-star ms-auto text-primary"></i>
@@ -25,16 +26,18 @@
         <div class="card shadow-0">
           <div class="card-body border-bottom pb-2">
             <% usersWithReviews.forEach(function(user){ %> 
+            <% user.post.reviews.forEach(function(review){ %>     
+                 
         <div>
           <div class="d-flex p-3 border-bottom">
-            <img src="images/home-img.png" class="rounded-circle"
+            <img src=<%= user.profile %> class="rounded-circle"
               height="50" alt="Avatar" loading="lazy" />
-            <div class="d-flex w-100 ps-3">
+            <div class="d-flex w-100 ps-3" style="margin-left: 3%;">
               <div>
                 <a href="">
                   <h6 class="text-body">
-                    User dummy
-                    <span class="small text-muted font-weight-normal">@dummyUsername</span>
+                    <%= user.username %>
+                    <!-- <span class="small text-muted font-weight-normal">@dummyUsername</span> -->
                     <span class="small text-muted font-weight-normal"> • </span>
                     <% if(( renderDay.getYear() === user.post.date.getYear())&&(renderDay.getMonth() === user.post.date.getMonth())&&(renderDay.getDay() === user.post.date.getDay())){ %>    
                         <% if(renderDay.getHours() === user.post.date.getHours()){ %>   
@@ -53,13 +56,13 @@
                   </h6>
                 </a>
                 <p style="line-height: 1.2;">
-                  <%= user.post.review %>    
+                  <%= review %>    
                 </p>
                 <ul class="list-unstyled d-flex justify-content-between mb-0 pe-xl-5">
                   <li>
                     <i class="far fa-comment"></i>
                   </li>
-                  <li><i class="far fa-heart"></i><span class="small ps-2">0</span></li>
+                  <li><i class="far fa-heart"></i>   <span class="small ps-2">0</span></li>
                   
                 </ul>
               </div>
@@ -67,7 +70,7 @@
           </div>
           
              </div>
-             <% }) %> 
+             <% })}) %> 
              </div>
             </div>
             </div>

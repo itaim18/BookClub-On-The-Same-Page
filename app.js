@@ -44,14 +44,16 @@ const commentSchema = new mongoose.Schema({
 });
 const postSchema = new mongoose.Schema({
   username: String,
+
   bookName: String,
-  review: String,
+  reviews: Array,
   date: Date,
   likes: Number,
   // comments: commentSchema,
 });
 const userSchema = new mongoose.Schema({
   email: String,
+  profile: String,
   password: String,
   googleId: String,
   facebookId: String,
@@ -183,7 +185,7 @@ app.post("/submit", function (req, res) {
     } else {
       if (foundUser) {
         foundUser.post.date = postDay;
-        foundUser.post.review = submittedPost;
+        foundUser.post.reviews.push(submittedPost);
         foundUser.isPost = 1;
         foundUser.save(function () {
           res.redirect("/booksFeed");
@@ -192,10 +194,28 @@ app.post("/submit", function (req, res) {
     }
   });
 });
-
+app.post("/booksFeed", function (req, res) {
+  console.log("something");
+  console.log(req.params);
+  console.log(req);
+  User.update(
+    { username: req.params.username },
+    { post: { likes: likes + 1 } },
+    { overwrite: true },
+    function (err) {
+      if (!err) {
+        res.redirect("/booksFeed");
+      }
+    }
+  );
+});
 app.post("/register", function (req, res) {
   User.register(
-    { username: req.body.username, post: { username: req.body.username } },
+    {
+      username: req.body.username,
+      profile: "images/profile-bookclub.png",
+      post: { username: req.body.username },
+    },
     req.body.password,
     function (err, user) {
       if (err) {
