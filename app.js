@@ -1,5 +1,5 @@
 //jshint esversion:6
-
+const upload = require("express-fileupload");
 const date = require(__dirname + "/date.js");
 require("dotenv").config();
 const express = require("express");
@@ -14,7 +14,7 @@ const findOrCreate = require("mongoose-findorcreate");
 const { boolean } = require("mathjs");
 const FacebookStrategy = require("passport-facebook").Strategy;
 const app = express();
-
+app.use(upload());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(
@@ -44,9 +44,9 @@ const commentSchema = new mongoose.Schema({
 });
 const postSchema = new mongoose.Schema({
   username: String,
-
+  profile: String,
   bookName: String,
-  reviews: Array,
+  review: String,
   date: Date,
   likes: Number,
   // comments: commentSchema,
@@ -58,7 +58,7 @@ const userSchema = new mongoose.Schema({
   googleId: String,
   facebookId: String,
   isPost: Boolean,
-  post: postSchema,
+  posts: [postSchema],
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -154,7 +154,7 @@ app.get("/booksFeed", function (req, res) {
     } else {
       if (foundUsers) {
         res.render("booksFeed", {
-          usersWithReviews: foundUsers,
+          usersWithPosts: foundUsers,
           renderDay: renderDay,
           renderDate: renderDate,
         });
@@ -175,17 +175,62 @@ app.get("/submit", function (req, res) {
   }
 });
 
+app.get("/account", function (req, res) {
+  if (req.isAuthenticated()) {
+    User.findById(req.user.id, function (err, foundUser) {
+      if (err) {
+        console.log(err);
+      } else {
+        if (foundUser) {
+          res.render("account", { profileImage: foundUser.profile });
+        }
+      }
+    });
+  } else {
+    res.redirect("/");
+  }
+});
+
+app.post("/account", function (req, res) {
+  if (req.files) {
+    var file = req.files.image_input;
+    var fileName = file.name;
+
+    file.mv("public/uploads/" + fileName, function (err) {
+      if (err) {
+        res.send(err);
+      } else {
+        User.findByIdAndUpdate(
+          req.user._id,
+          {
+            profile: "uploads/" + fileName,
+          },
+          function (err, foundUser) {
+            if (err) {
+              console.log(err);
+            } else {
+              res.redirect("/account");
+            }
+          }
+        );
+      }
+    });
+  }
+});
+
 app.post("/submit", function (req, res) {
-  const submittedPost = req.body.post;
-  //const postDate = date.getDate();
+  const submittedReview = req.body.review;
   let postDay = new Date();
   User.findById(req.user.id, function (err, foundUser) {
     if (err) {
       console.log(err);
     } else {
       if (foundUser) {
-        foundUser.post.date = postDay;
-        foundUser.post.reviews.push(submittedPost);
+        foundUser.posts.push({
+          date: postDay,
+          review: submittedReview,
+          profile: foundUser.profile,
+        });
         foundUser.isPost = 1;
         foundUser.save(function () {
           res.redirect("/booksFeed");
@@ -194,27 +239,24 @@ app.post("/submit", function (req, res) {
     }
   });
 });
-app.post("/booksFeed", function (req, res) {
-  console.log("something");
-  console.log(req.params);
-  console.log(req);
-  User.update(
-    { username: req.params.username },
-    { post: { likes: likes + 1 } },
-    { overwrite: true },
-    function (err) {
-      if (!err) {
-        res.redirect("/booksFeed");
-      }
-    }
-  );
-});
+// app.post("/booksFeed", function (req, res) {
+//   User.update(
+//     { username: req.params.username },
+//     { post: { likes: likes + 1 } },
+//     { overwrite: true },
+//     function (err) {
+//       if (!err) {
+//         res.redirect("/booksFeed");
+//       }
+//     }
+//   );
+// });
 app.post("/register", function (req, res) {
   User.register(
     {
       username: req.body.username,
       profile: "images/profile-bookclub.png",
-      post: { username: req.body.username },
+      isPost: 0,
     },
     req.body.password,
     function (err, user) {
@@ -223,7 +265,7 @@ app.post("/register", function (req, res) {
         res.redirect("/register");
       } else {
         passport.authenticate("local")(req, res, function () {
-          res.redirect("/booksFeed");
+          res.redirect("/account");
         });
       }
     }
@@ -234,7 +276,6 @@ app.post("/", function (req, res) {
   const user = new User({
     username: req.body.username,
     password: req.body.password,
-    post: { username: req.body.username },
   });
 
   req.login(user, function (err) {
