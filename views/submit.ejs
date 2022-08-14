@@ -7,8 +7,9 @@
 
     <form action="/submit" method="POST">
 
-      <div class="form-group">
-        <input type="text" class="form-control text-center" name="review" placeholder="What did you think?">
+       <i class="fa-solid fa-magnifying-glass"></i><input type="text" class=" text-center" onkeydown="pressed()" name="search" placeholder="look for a book" />
+        
+       <input type="text" class="form-control text-center" name="review" placeholder="What did you think?">
       </div>
       <button type="submit" class="btn btn-dark">Submit</button>
     </form>
@@ -16,4 +17,9 @@
 
   </div>
 </div>
+<script>
+  function pressed() {
+   alert("press");
+  }
+  </script>
 <%- include('partials/footer') %>

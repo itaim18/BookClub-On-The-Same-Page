@@ -1,4 +1,5 @@
 //jshint esversion:6
+const https = require("https");
 const upload = require("express-fileupload");
 const date = require(__dirname + "/date.js");
 require("dotenv").config();
@@ -52,7 +53,7 @@ const postSchema = new mongoose.Schema({
   // comments: commentSchema,
 });
 const userSchema = new mongoose.Schema({
-  email: String,
+  nickname: String,
   profile: String,
   password: String,
   googleId: String,
@@ -167,9 +168,24 @@ app.get("/logout", function (req, response) {
     response.redirect("/");
   });
 });
+
 app.get("/submit", function (req, res) {
+  function searcher(text) {
+    https.get(
+      "https://www.googleapis.com/books/v1/volumes?q=flowers&filter=free-ebooks&key=AIzaSyBTk4ljv4cbfL5PLe2jV9xhjTiVRpkJ9SQ",
+      (resp) => {
+        let data = "";
+        resp.on("data", (chunk) => {
+          data += chunk;
+        });
+        resp.on("end", () => {
+          console.log(JSON.parse(data).explanation);
+        });
+      }
+    );
+  }
   if (req.isAuthenticated()) {
-    res.render("submit");
+    res.render("submit", { searcher: searcher });
   } else {
     res.redirect("/");
   }
@@ -182,7 +198,11 @@ app.get("/account", function (req, res) {
         console.log(err);
       } else {
         if (foundUser) {
-          res.render("account", { profileImage: foundUser.profile });
+          res.render("account", {
+            profileImage: foundUser.profile,
+            username: foundUser.username,
+            nickname: foundUser.nickname,
+          });
         }
       }
     });
@@ -216,6 +236,19 @@ app.post("/account", function (req, res) {
       }
     });
   }
+  User.findByIdAndUpdate(
+    req.user._id,
+    {
+      nickname: req.body.nickname,
+    },
+    function (err, foundUser) {
+      if (err) {
+        console.log(err);
+      } else {
+        res.redirect("/account");
+      }
+    }
+  );
 });
 
 app.post("/submit", function (req, res) {
@@ -255,6 +288,7 @@ app.post("/register", function (req, res) {
   User.register(
     {
       username: req.body.username,
+      nickname: "ReaderLeader",
       profile: "images/profile-bookclub.png",
       isPost: 0,
     },

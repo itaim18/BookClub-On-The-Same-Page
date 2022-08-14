@@ -24,10 +24,14 @@ body{
   
 }
 
+
 @media only screen and (max-width: 990px) {
     .home-img{
         width:75%;
         height:75%;
+    }
+    .feed-btn{
+        right: 5%;
     }
   }
   @media only screen and (max-width: 600px) {

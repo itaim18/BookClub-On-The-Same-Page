@@ -9,8 +9,8 @@
                 
                 <div class="col flex-shrink-0  " style="margin-right:3%;">
                   <img src= <%= profileImage %> 
-                    alt="check file spelling" 
-                    style="width: 180px; height: 180px; border-radius: 10px;  align-self: center;">
+                    alt="check file spelling" class="rounded-circle"
+                    style="width: 180px; height: 180px;   align-self: center;">
                      <div class="custom-file">
                         
                         <input type="file" class="custom-file-input" accept="image/png, image/jpg" name="image_input" id="image_input">
@@ -19,10 +19,9 @@
                      </div> 
                 </div>
                 <div class="flex-grow-1 ms-3">
-                  <input placeholder="Your name" class="mb-1">
+                  <input type="text" name="nickname" placeholder="<%=nickname%>" maxlength="15" class="mb-1">
                 </input>
-                  <p class="mb-2 pb-1" ><input placeholder="nickname" class="mb-1">
-                  </input></p>
+                  <p class="mb-2 pb-1" ><b><%=username%></b>  </p>
                   <div class="d-flex justify-content-start rounded-3 p-2 mb-2"
                     style="background-color: #efefef;">
                     <div>
