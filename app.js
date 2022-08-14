@@ -13,11 +13,15 @@ const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
 const { boolean } = require("mathjs");
+const { JsonWebTokenError } = require("jsonwebtoken");
 const FacebookStrategy = require("passport-facebook").Strategy;
 const app = express();
 app.use(upload());
-app.use(express.static("public"));
+
 app.set("view engine", "ejs");
+app.use(express.json());
+app.use(express.static("public"));
+
 app.use(
   bodyParser.urlencoded({
     extended: true,
@@ -170,22 +174,8 @@ app.get("/logout", function (req, response) {
 });
 
 app.get("/submit", function (req, res) {
-  function searcher(text) {
-    https.get(
-      "https://www.googleapis.com/books/v1/volumes?q=flowers&filter=free-ebooks&key=AIzaSyBTk4ljv4cbfL5PLe2jV9xhjTiVRpkJ9SQ",
-      (resp) => {
-        let data = "";
-        resp.on("data", (chunk) => {
-          data += chunk;
-        });
-        resp.on("end", () => {
-          console.log(JSON.parse(data).explanation);
-        });
-      }
-    );
-  }
   if (req.isAuthenticated()) {
-    res.render("submit", { searcher: searcher });
+    res.render("submit");
   } else {
     res.redirect("/");
   }
@@ -251,6 +241,30 @@ app.post("/account", function (req, res) {
   );
 });
 
+app.post("/getBooks", async function (req, res) {
+  let payload = req.body.payload.trim();
+  let search = await https
+    .get(
+      "https://www.googleapis.com/books/v1/volumes?q=" +
+        payload +
+        "&maxResults=5&key=AIzaSyBTk4ljv4cbfL5PLe2jV9xhjTiVRpkJ9SQ",
+      (resp) => {
+        let data = "";
+        resp.on("data", (chunk) => {
+          data += chunk;
+        });
+        resp.on("end", () => {
+          let search = JSON.parse(data).items;
+
+          res.send({ payload: search });
+        });
+      }
+    )
+    .on("error", (err) => {
+      console.log("Error: " + err.message);
+    });
+  console.log(payload);
+});
 app.post("/submit", function (req, res) {
   const submittedReview = req.body.review;
   let postDay = new Date();

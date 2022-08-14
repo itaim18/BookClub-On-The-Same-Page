@@ -2,24 +2,65 @@
 
 <div class="container">
   <div class="jumbotron centered">
-    <h1 class="display-3">Book reviews</h1>
+    <h1 class="display-3">write about what you read</h1>
     <p class="secret-text">Share what you thought</p>
+    <div class="container">
+<div class="row justify-content-center">
+    <div class=" col-10 input-group rounded" style="width: 50%;  ">
+      <input type="text" onkeyup="sendData(this)" class="form-control rounded"  placeholder="Search Your Book" aria-label="Search" aria-describedby="search-addon" />
+      
+      <span class="input-group-text border-0" id="search-addon">
+        <i class="fas fa-search"></i>
+      </span></div></div>
 
-    <form action="/submit" method="POST">
-
-       <i class="fa-solid fa-magnifying-glass"></i><input type="text" class=" text-center" onkeydown="pressed()" name="search" placeholder="look for a book" />
+      <div class="row justify-content-center"  >
+        <div class="col-10 " style=" overflow: auto; height:250px; " >
+      <section id="searchResults"   style="width:92%;  background-color: white; position:absolute;  z-index: 3; ">
         
+      </section>
+    </div></div>
+</div>
+    <form action="/submit" method="POST" style="position:relative; z-index: 0; margin-top: 80px;" >
        <input type="text" class="form-control text-center" name="review" placeholder="What did you think?">
-      </div>
+
       <button type="submit" class="btn btn-dark">Submit</button>
     </form>
-
-
   </div>
 </div>
 <script>
-  function pressed() {
-   alert("press");
-  }
+  function  sendData(e){
+    const searchResults = document.getElementById("searchResults");
+    searchResults.innerHTML="";
+    let match = e.value.match(/^[a-zA-Z ]*/);
+    let match2 = e.value.match(/\s*/);
+    if(match2[0] === e.value){
+      searchResults.innerHTML="";
+      return;
+    }
+    if(match[0]===e.value){
+      fetch("getBooks",{
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({payload: e.value})
+    }).then(res => res.json()).then(data =>{
+      let payload = data.payload;
+      searchResults.innerHtml = "";
+      if(payload.length<1){
+        searchResults.innerHTML = "<p>Sorry. Nothing Found</p>";
+        return;
+      }
+      payload.forEach((item,index)=>{
+        if(index> 0) searchResults.innerHTML += "<hr>";
+        searchResults.innerHTML += `<div class="row"><img class="col-2" style="width:50%; height:10%" src=${item.volumeInfo.imageLinks.thumbnail}  /><p class="col-10"><b>${item.volumeInfo.title}</b></p><p class="col-10">${item.volumeInfo.description}</p></div>`;
+        if (index>5){
+          return;
+        }
+      });
+      
+    });
+    return;
+    }
+    searchResults.innerHTML="";
+  };
   </script>
 <%- include('partials/footer') %>
