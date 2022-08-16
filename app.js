@@ -247,7 +247,7 @@ app.post("/getBooks", async function (req, res) {
     .get(
       "https://www.googleapis.com/books/v1/volumes?q=" +
         payload +
-        "&maxResults=5&key=AIzaSyBTk4ljv4cbfL5PLe2jV9xhjTiVRpkJ9SQ",
+        "&hl=en&maxResults=5&key=AIzaSyDpatHoQCB_wRpWBKCT_jA670jEHiNdUN0",
       (resp) => {
         let data = "";
         resp.on("data", (chunk) => {
