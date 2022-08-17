@@ -262,18 +262,17 @@ app.post("/account", function (req, res) {
 
 app.post("/getBooks", async function (req, res) {
   let payload = req.body.payload.trim();
+  console.log(payload);
   let search = await https
     .get(
-      "https://www.googleapis.com/books/v1/volumes?q=" +
-        payload +
-        "&hl=en&maxResults=5&key=AIzaSyDpatHoQCB_wRpWBKCT_jA670jEHiNdUN0",
+      "https://openlibrary.org/search.json?q=" + payload + "&limit=5",
       (resp) => {
         let data = "";
         resp.on("data", (chunk) => {
           data += chunk;
         });
         resp.on("end", () => {
-          let search = JSON.parse(data).items;
+          let search = JSON.parse(data).docs;
 
           res.send({ payload: search });
         });
@@ -282,7 +281,6 @@ app.post("/getBooks", async function (req, res) {
     .on("error", (err) => {
       console.log("Error: " + err.message);
     });
-  console.log(payload);
 });
 
 app.post("/submit", function (req, res) {

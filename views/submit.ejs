@@ -58,17 +58,25 @@
       body: JSON.stringify({payload: e.value})
     }).then(res => res.json()).then(data =>{
       let payload = data.payload;
+      console.log(payload);
       searchResults.innerHtml = "";
       if(payload.length<1){
         searchResults.innerHTML = "<p>Sorry. Nothing Found</p>";
         return;
       }
-      payload.forEach((item,index)=>{
-        if(index> 0) searchResults.innerHTML += "<hr>";
-        searchResults.innerHTML += `<a id="option" onclick='passBookData(this)'><div style="cursor:pointer; margin-right:5px;" class="row"><img class="col col-lg-2 col-md-4 " style=" height:10%" src=${item.volumeInfo.imageLinks.thumbnail}  /><div class="col col-lg-10 col-md-8 "><p><b>${item.volumeInfo.title}</b></p><p>${item.volumeInfo.authors[0]}, ${item.volumeInfo.publishedDate}</p></div></div></a>`;
-        if (index>5){
+      payload.forEach((item)=>{
+         searchResults.innerHTML += "<hr>";
+        searchResults.innerHTML += `
+        <a id="option" onclick='passBookData(this)'>
+          <div style="cursor:pointer; margin-right:5px;" class="row">
+            <img class="col col-lg-2 col-md-4 " style=" height:10%" src=${"https://covers.openlibrary.org/b/id/"+ item.cover_i+".jpg"}  />
+            <div class="col col-lg-10 col-md-8 ">
+              <p><b>${item.title}</b></p>
+              <p>${item.author_name[0]}.</p>
+              </div>
+              </div>
+              </a>`;
           return;
-        }
       });
       
     });
