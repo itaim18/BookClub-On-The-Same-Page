@@ -8,12 +8,12 @@
               <div class="d-flex text-black align-items-center justify-content-center">
                 
                 <div class="col flex-shrink-0  " style="margin-right:3%;">
-                  <img src= <%= profileImage %> 
+                  <img id="profileImg" src= <%= profileImage %> 
                     alt="check file spelling" class="rounded-circle"
                     style="width: 180px; height: 180px;   align-self: center;">
                      <div class="custom-file">
                         
-                        <input type="file" class="custom-file-input" accept="image/png, image/jpg" name="image_input" id="image_input">
+                        <input type="file" id="file" class="custom-file-input" accept="image/png, image/jpg" name="file">
                         <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
                         
                      </div> 
@@ -45,6 +45,14 @@
         </div>
       </div></form>
       </section>
-      
+      <script>
+        document.getElementById('file').onchange = function(event) {
+          var profileImg = document.getElementById('profileImg');
+    profileImg.src = URL.createObjectURL(event.target.files[0]);
+    profileImg.onload = function() {
+      URL.revokeObjectURL(profileImg.src);
+    }
+};
+      </script>
 
   <%- include('partials/footer') %>

@@ -203,42 +203,61 @@ app.get("/account", function (req, res) {
 
 app.post("/account", function (req, res) {
   if (req.files) {
-    var file = req.files.image_input;
+    var file = req.files.file;
+    console.log(file);
     var fileName = file.name;
 
     file.mv("public/uploads/" + fileName, function (err) {
       if (err) {
         res.send(err);
       } else {
-        User.findByIdAndUpdate(
-          req.user._id,
-          {
-            profile: "uploads/" + fileName,
-          },
-          function (err, foundUser) {
-            if (err) {
-              console.log(err);
-            } else {
-              res.redirect("/account");
+        if (req.body.nickname) {
+          User.findByIdAndUpdate(
+            req.user.id,
+            {
+              profile: "uploads/" + fileName,
+              nickname: req.body.nickname,
+            },
+            function (err, foundUser) {
+              if (err) {
+                console.log(err);
+              } else {
+                res.redirect("/account");
+              }
             }
-          }
-        );
+          );
+        } else {
+          User.findByIdAndUpdate(
+            req.user.id,
+            {
+              profile: "uploads/" + fileName,
+            },
+            function (err, foundUser) {
+              if (err) {
+                console.log(err);
+              } else {
+                res.redirect("/account");
+              }
+            }
+          );
+        }
       }
     });
-  }
-  User.findByIdAndUpdate(
-    req.user._id,
-    {
-      nickname: req.body.nickname,
-    },
-    function (err, foundUser) {
-      if (err) {
-        console.log(err);
-      } else {
-        res.redirect("/account");
+  } else {
+    User.findByIdAndUpdate(
+      req.user.id,
+      {
+        nickname: req.body.nickname,
+      },
+      function (err, foundUser) {
+        if (err) {
+          console.log(err);
+        } else {
+          res.redirect("/account");
+        }
       }
-    }
-  );
+    );
+  }
 });
 
 app.post("/getBooks", async function (req, res) {
@@ -265,6 +284,7 @@ app.post("/getBooks", async function (req, res) {
     });
   console.log(payload);
 });
+
 app.post("/submit", function (req, res) {
   const submittedReview = req.body.review;
   let postDay = new Date();
