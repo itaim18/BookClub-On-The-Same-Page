@@ -44,7 +44,7 @@
 <script>
   function  sendData(e){
     const searchResults = document.getElementById("searchResults");
-    searchResults.innerHTML="";
+    // searchResults.innerHTML="";
     let match = e.value.match(/^[a-zA-Z ]*/);
     let match2 = e.value.match(/\s*/);
     if(match2[0] === e.value){
@@ -59,16 +59,17 @@
     }).then(res => res.json()).then(data =>{
       let payload = data.payload;
       console.log(payload);
-      searchResults.innerHtml = "";
+      
       if(payload.length<1){
         searchResults.innerHTML = "<p>Sorry. Nothing Found</p>";
         return;
       }
+      searchResults.innerHTML="";
       payload.forEach((item)=>{
          searchResults.innerHTML += "<hr>";
         searchResults.innerHTML += `
         <a id="option" onclick='passBookData(this)'>
-          <div style="cursor:pointer; margin-right:5px;" class="row">
+          <div style="cursor:pointer; margin-left:5px;" class="row">
             <img class="col col-lg-2 col-md-4 " style=" height:10%" src=${"https://covers.openlibrary.org/b/id/"+ item.cover_i+".jpg"}  />
             <div class="col col-lg-10 col-md-8 ">
               <p><b>${item.title}</b></p>
