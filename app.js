@@ -48,9 +48,10 @@ const commentSchema = new mongoose.Schema({
   commentLikes: Number,
 });
 const postSchema = new mongoose.Schema({
+  bookImage: String,
   username: String,
   profile: String,
-  bookName: String,
+  bookTitle: String,
   review: String,
   date: Date,
   likes: Number,
@@ -175,7 +176,7 @@ app.get("/logout", function (req, response) {
 
 app.get("/submit", function (req, res) {
   if (req.isAuthenticated()) {
-    res.render("submit");
+    res.render("submit", { isSearching: true });
   } else {
     res.redirect("/");
   }
@@ -244,25 +245,28 @@ app.post("/account", function (req, res) {
       }
     });
   } else {
-    User.findByIdAndUpdate(
-      req.user.id,
-      {
-        nickname: req.body.nickname,
-      },
-      function (err, foundUser) {
-        if (err) {
-          console.log(err);
-        } else {
-          res.redirect("/account");
+    if (req.body.nickname) {
+      User.findByIdAndUpdate(
+        req.user.id,
+        {
+          nickname: req.body.nickname,
+        },
+        function (err, foundUser) {
+          if (err) {
+            console.log(err);
+          } else {
+            res.redirect("/account");
+          }
         }
-      }
-    );
+      );
+    } else {
+      res.redirect("/account");
+    }
   }
 });
 
 app.post("/getBooks", async function (req, res) {
   let payload = req.body.payload.trim();
-  console.log(payload);
   let search = await https
     .get(
       "https://openlibrary.org/search.json?q=" + payload + "&limit=5",
@@ -285,6 +289,9 @@ app.post("/getBooks", async function (req, res) {
 
 app.post("/submit", function (req, res) {
   const submittedReview = req.body.review;
+  const bookImage = req.body.bookImg;
+  const bookTitle = req.body.bookTitle;
+
   let postDay = new Date();
   User.findById(req.user.id, function (err, foundUser) {
     if (err) {
@@ -292,8 +299,10 @@ app.post("/submit", function (req, res) {
     } else {
       if (foundUser) {
         foundUser.posts.push({
-          date: postDay,
           review: submittedReview,
+          bookImage: bookImage,
+          bookTitle: bookTitle,
+          date: postDay,
           profile: foundUser.profile,
         });
         foundUser.isPost = 1;
@@ -304,18 +313,6 @@ app.post("/submit", function (req, res) {
     }
   });
 });
-// app.post("/booksFeed", function (req, res) {
-//   User.update(
-//     { username: req.params.username },
-//     { post: { likes: likes + 1 } },
-//     { overwrite: true },
-//     function (err) {
-//       if (!err) {
-//         res.redirect("/booksFeed");
-//       }
-//     }
-//   );
-// });
 app.post("/register", function (req, res) {
   User.register(
     {

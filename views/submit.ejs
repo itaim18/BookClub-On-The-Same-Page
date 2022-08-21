@@ -1,9 +1,12 @@
 <%- include('partials/header') %>
 
-<div class="container justify-content-center">
+
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-xl-10">
+        <div class="card" style="border-radius: 1rem;">
   
     <h1 class="display-3">write about what you read</h1>
-    <p class="secret-text">Share what you thought</p>
     <div class="container">
       <!-- searchBar -->
 <div class="row justify-content-center">
@@ -12,8 +15,9 @@
       <span class="input-group-text border-0" id="search-addon">
         <i class="fas fa-search"></i>
       </span></div>
+      
    <div class="col-10 rounded" style="width:90%;height:250px;overflow-y: auto;z-index: 3;  display: block; ">
-  <section id="searchResults"  style="  background-color:white ; ">
+  <section id="searchResults"  style="margin-top: -15px;  background-color:white ; ">
 
     </section>
     </div>
@@ -21,30 +25,50 @@
 
 
 </div>
-
+<div class="row justify-content-center align-items-center" style="position: relative; bottom: 200px; ">
+<img class="col-3" src="images/book-stack.png" style="width:20%; height:20%;"/>
+<h3 class="col-7" style="width:70%;" ><br>Basically here you'll pick the book you read.
+  Then write about what you made of it and let everyone in this site read about your experience with the book.
+</h3>
+</div>
     <!-- input form for review -->
-<div class="row justify-content-center" style="position: relative; top: -200px; height:600px ;width:600px;">
+    <form action="/submit" method="POST">
+<div class="row justify-content-center" style="position: relative;bottom:100px;  width:600px;">
   <!-- the book's cover -->
-  <div class="col-5  " style="height: 55%;">
+  <div class="col-5  " style="height: 55%; left:100px;">
 <section id="enteredBookImage"  >
 </section>
 </div>
   
-<div class="col-6">
-  <h2 id="bookTitle">TITLE</h2>
-  <textarea class="form-control rounded-0" placeholder="What did you think?" id="exampleFormControlTextarea1" rows="10">
-
-  </textarea>
-  <button type="submit" class="btn btn-dark">Submit</button>
+<div class="col-6" style="bottom: 20px;width:170%; left: 150px;">
+  <input type="text" name="bookTitle" value="Title"  style="width:170%;"  id="bookTitle"></input>
+  
+  <textarea type="text" value="review" name="review" class="form-control rounded-0" style="z-index: 6;
+  height: 250px;
+  width:170%;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: 16px;
+  resize: none;" placeholder="What did you think?"></textarea>
+  <button type="submit"  class="btn btn-dark">Submit</button>
 </div>
 
+</div></form>
+      </div>
+      </div>
+      </div>
 </div>
-      
 </div>
 <script>
+  let timer;
   function  sendData(e){
+    clearTimeout(timer);
     const searchResults = document.getElementById("searchResults");
-    // searchResults.innerHTML="";
+    searchResults.innerHTML = `<div style=" margin-left:250px;" class="row justify-cotent-center"><lottie-player src="https://assets5.lottiefiles.com/packages/lf20_2scSKA.json"  background="transparent"  speed="1"  style="width: 200px; height: 200px; "  loop autoplay></lottie-player></div>`
+    timer = setTimeout(()=>{
     let match = e.value.match(/^[a-zA-Z ]*/);
     let match2 = e.value.match(/\s*/);
     if(match2[0] === e.value){
@@ -52,6 +76,7 @@
       return;
     }
     if(match[0]===e.value){
+      
       fetch("getBooks",{
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -70,7 +95,7 @@
         searchResults.innerHTML += `
         <a id="option" onclick='passBookData(this)'>
           <div style="cursor:pointer; margin-left:5px;" class="row">
-            <img class="col col-lg-2 col-md-4 " style=" height:10%" src=${"https://covers.openlibrary.org/b/id/"+ item.cover_i+".jpg"}  />
+            <img class="col col-lg-2 col-md-4 "  style=" height:10%" src=${"https://covers.openlibrary.org/b/id/"+ item.cover_i+".jpg"}  />
             <div class="col col-lg-10 col-md-8 ">
               <p><b>${item.title}</b></p>
               <p>${item.author_name[0]}.</p>
@@ -84,6 +109,8 @@
     return;
     }
     searchResults.innerHTML="";
+    },300);
+    
   };
   function passBookData(e) {
     const searchResults = document.getElementById("searchResults");
@@ -92,9 +119,10 @@
     const imageStr = e.querySelector("img").src;
     const bookTitle = e.querySelector("b").innerHTML;
     searchResults.innerHTML = "";
-    enteredBookImage.innerHTML = `<div style="border: 1px solid black; "><img src=${imageStr} style="width:100%; height:100%; display:block; " /></div>`
-    enteredBookTitle.innerHTML = bookTitle;
-
+    enteredBookImage.innerHTML = `<div style="border: 1px solid black; "><img name="bookImg" src=${imageStr} style="width:100%; height:100%; display:block; " /><input name="bookImg" style="position:absolute;z-index:-1;" value=${imageStr}></input></div>`
+    enteredBookTitle.value = bookTitle;
   }
   </script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  
 <%- include('partials/footer') %>

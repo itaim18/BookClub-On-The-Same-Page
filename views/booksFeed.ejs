@@ -66,11 +66,18 @@
                     <span><i class="fas fa-angle-down float-end"></i></span>
                   </h6>
                 </a>
-                <p style="line-height: 1.2;">
-                  <%= post.review %>    
-                </p>
-                <ul class="list-unstyled d-flex justify-content-between mb-0 pe-xl-5">
-                  <li>
+                <div class="row">
+                <img class="col-3" src=<%=post.bookImage %> alt="did not choose book" style="width:20%;height:20%;"  />
+
+                <p class="col-8" style="line-height: 1.2;">
+                  <b><%=post.bookTitle %></b><br>
+                  <i class="fa-solid fa-2x  fa-quote-left"></i>
+                <%=post.review%> 
+                <i class="fa-solid fa-2x fa-quote-right"></i>
+               
+                </div>
+                <ul class="list-unstyled d-flex  mb-0 pe-xl-5">
+                  <li style="margin-right: 10px;">
                     <i class="far fa-comment"></i>
                   </li>
                   <li><i class="far fa-heart"></i>   <span class="small ps-2">0</span></li>
