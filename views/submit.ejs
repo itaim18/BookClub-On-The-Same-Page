@@ -17,7 +17,7 @@
       </span></div>
       
    <div class="col-10 rounded" style="width:90%;height:250px;overflow-y: auto;z-index: 3;  display: block; ">
-  <section id="searchResults"  style="margin-top: -15px;  background-color:white ; ">
+  <section id="searchResults"  style="margin-top: -15px;color:#F6F7F8 ; background-color:#92B1B6; ">
 
     </section>
     </div>
@@ -33,19 +33,18 @@
 </div>
     <!-- input form for review -->
     <form action="/submit" method="POST">
-<div class="row justify-content-center" style="position: relative;bottom:100px;  width:600px;">
-  <!-- the book's cover -->
-  <div class="col-5  " style="height: 55%; left:100px;">
+<div class="row" style="position: relative;bottom:100px; justify-content: center; margin-bottom: 20px; ">
+  
+  <div class="col-6 col-md-4 " style="height: 55%;">
 <section id="enteredBookImage"  >
 </section>
 </div>
   
-<div class="col-6" style="bottom: 20px;width:170%; left: 150px;">
-  <input type="text" name="bookTitle" value="Title"  style="width:170%;"  id="bookTitle"></input>
+<div class="col-12 col-sm-6 col-md-8 "  >
+  <input class="form-control" type="text" name="bookTitle" value="Title"    id="bookTitle" readonly></input>
   
   <textarea type="text" value="review" name="review" class="form-control rounded-0" style="z-index: 6;
   height: 250px;
-  width:170%;
   padding: 12px 20px;
   box-sizing: border-box;
   border: 2px solid #ccc;
@@ -63,12 +62,13 @@
 </div>
 </div>
 <script>
-  let timer;
+   let timer;
   function  sendData(e){
     clearTimeout(timer);
     const searchResults = document.getElementById("searchResults");
     searchResults.innerHTML = `<div style=" margin-left:250px;" class="row justify-cotent-center"><lottie-player src="https://assets5.lottiefiles.com/packages/lf20_2scSKA.json"  background="transparent"  speed="1"  style="width: 200px; height: 200px; "  loop autoplay></lottie-player></div>`
     timer = setTimeout(()=>{
+      console.log(e.value);
     let match = e.value.match(/^[a-zA-Z ]*/);
     let match2 = e.value.match(/\s*/);
     if(match2[0] === e.value){
@@ -95,9 +95,9 @@
         searchResults.innerHTML += `
         <a id="option" onclick='passBookData(this)'>
           <div style="cursor:pointer; margin-left:5px;" class="row">
-            <img class="col col-lg-2 col-md-4 "  style=" height:10%" src=${"https://covers.openlibrary.org/b/id/"+ item.cover_i+".jpg"}  />
-            <div class="col col-lg-10 col-md-8 ">
-              <p><b>${item.title}</b></p>
+            <img class="col-3"  style=" height:10%" src=${"https://covers.openlibrary.org/b/id/"+ item.cover_i+".jpg"}  />
+            <div class="col-9">
+              <h5><b>${item.title}</b></h5>
               <p>${item.author_name[0]}.</p>
               </div>
               </div>
