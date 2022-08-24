@@ -23,6 +23,21 @@ body{
     padding-top: 10px;
   
 }
+#bookPost-btn{
+    justify-content: center;  
+    align-items: center; 
+    background: transparent; 
+    cursor: pointer; 
+    display: flex; 
+    border: none;
+    outline: none;
+}
+#limit{
+    width:100%;
+    text-align: right;
+    margin-top: 15px;
+    color: #737373;
+}
 
 
 @media only screen and (max-width: 990px) {

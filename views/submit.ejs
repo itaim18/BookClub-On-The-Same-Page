@@ -6,7 +6,7 @@
       <div class="col col-xl-10">
         <div class="card" style="border-radius: 1rem;">
   
-    <h1 class="display-3">write about what you read</h1>
+    <h1 class="display-3" id="submitTitle">write about what you read</h1>
     <div class="container">
       <!-- searchBar -->
 <div class="row justify-content-center">
@@ -43,7 +43,7 @@
 <div class="col-12 col-sm-6 col-md-8 "  >
   <input class="form-control" type="text" name="bookTitle" value="Title"    id="bookTitle" readonly></input>
   
-  <textarea type="text" value="review" name="review" class="form-control rounded-0" style="z-index: 6;
+  <textarea id="post-text" type="text" value="review" name="review" class="form-control rounded-0" style="z-index: 6;
   height: 250px;
   padding: 12px 20px;
   box-sizing: border-box;
@@ -51,8 +51,10 @@
   border-radius: 4px;
   background-color: #f8f8f8;
   font-size: 16px;
+  outline: none;
   resize: none;" placeholder="What did you think?"></textarea>
-  <button type="submit"  class="btn btn-dark">Submit</button>
+  <p id="limit"></p>
+  <button id="submit-button" type="submit" style="align-self: right; width:100%"  class="btn btn-dark">Submit</button>
 </div>
 
 </div></form>
@@ -62,6 +64,26 @@
 </div>
 </div>
 <script>
+  var submitButton = document.getElementById("submit-button");
+var postText = document.getElementById("post-text");
+var result = document.getElementById("limit");
+var limit = 999;
+result.textContent = 0 + "/" + limit;
+
+postText.addEventListener("input", function(){
+  var textLength = postText.value.length;
+  result.textContent = textLength+ "/" + limit;
+  if (textLength> limit){
+    postText.style.borderColor = "#ff2851";
+    postText.style.color= "#ff2851";
+    submitButton.disabled = true;
+  } else{
+    submitButton.disabled = false;
+    postText.style.borderColor = "#b2b2b2";
+    postText.style.color= "#737373";
+  }
+})
+
    let timer;
   function  sendData(e){
     clearTimeout(timer);

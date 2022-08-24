@@ -1,4 +1,5 @@
 //jshint esversion:6
+
 const https = require("https");
 const upload = require("express-fileupload");
 const date = require(__dirname + "/date.js");
@@ -15,7 +16,10 @@ const findOrCreate = require("mongoose-findorcreate");
 const { boolean } = require("mathjs");
 const { JsonWebTokenError } = require("jsonwebtoken");
 const FacebookStrategy = require("passport-facebook").Strategy;
+var favicon = require("serve-favicon");
+var path = require("path");
 const app = express();
+
 app.use(upload());
 
 app.set("view engine", "ejs");
@@ -38,7 +42,7 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(favicon(path.join(__dirname, "public", "logo.ico")));
 mongoose.connect("mongodb://localhost:27017/userDB", { useNewUrlParser: true });
 // mongoose.set("useCreateIndex", true);
 
@@ -160,6 +164,7 @@ app.get("/booksFeed", function (req, res) {
     } else {
       if (foundUsers) {
         res.render("booksFeed", {
+          unlikedPost: "r",
           usersWithPosts: foundUsers,
           renderDay: renderDay,
           renderDate: renderDate,
@@ -190,6 +195,7 @@ app.get("/account", function (req, res) {
       } else {
         if (foundUser) {
           res.render("account", {
+            articles: foundUser.posts.length,
             profileImage: foundUser.profile,
             username: foundUser.username,
             nickname: foundUser.nickname,
@@ -264,7 +270,9 @@ app.post("/account", function (req, res) {
     }
   }
 });
-
+app.post("/booksFeed", function (req, res) {
+  console.log(req.body);
+});
 app.post("/getBooks", async function (req, res) {
   let payload = req.body.payload.trim();
   let search = await https

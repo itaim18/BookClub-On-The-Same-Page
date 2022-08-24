@@ -76,14 +76,15 @@
                 <i class="fa-solid fa-2x fa-quote-right"></i>
                
                 </div>
+                <form action="/booksFeed" method="post">
                 <ul class="list-unstyled d-flex  mb-0 pe-xl-5">
-                  <li style="margin-right: 10px;">
-                    <i class="far fa-comment"></i>
-                  </li>
-                  <li><i class="far fa-heart"></i>   <span class="small ps-2">0</span></li>
-                  
+                  <button  type="submit" name="comment" value="open comment" id="bookPost-btn" > <li style="margin-right: 10px;">
+                    <i class="far fa-comment" style="color: #007bff;" ></i>
+                  </li></button>
+                   <button type="submit" onclick="toggleLikePost(this)" name="like" value=<%=post.id %> data-post-id="postButton"   id="bookPost-btn" ><li><i class="far fa-heart"  style="color: #e20d0d;"></i>   <span id="likes-count" class="small ins ps-2">0</span></li>
+                  </button>
                 </ul>
-               
+               </form>
               </div>
               
             </div>
@@ -102,9 +103,8 @@
     </div>
     </div>
     </section>
-    </div>
-    
-      
+  </div>
+  
   
 
 
