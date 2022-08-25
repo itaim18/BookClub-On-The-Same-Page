@@ -48,7 +48,14 @@ body{
     .feed-btn{
         right: 5%;
     }
-   
+    .toph{
+        position: relative;
+         right: 80px;
+    }
+   #UNAUTHORIZED-title{
+    font-size:10px;
+    
+   }
   }
   @media only screen and (max-width: 600px) {
     .home-img{

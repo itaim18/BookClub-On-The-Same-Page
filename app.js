@@ -68,6 +68,7 @@ const userSchema = new mongoose.Schema({
   googleId: String,
   facebookId: String,
   isPost: Boolean,
+  likedPosts: [String],
   posts: [postSchema],
 });
 
@@ -155,23 +156,32 @@ app.get("/register", function (req, res) {
   res.render("register");
 });
 
+app.get("/unauthorized", function (req, res) {
+  res.render("unAuthorized");
+});
+
 app.get("/booksFeed", function (req, res) {
-  const renderDate = date.getDate();
-  let renderDay = new Date();
-  User.find({ isPost: 1 }, function (err, foundUsers) {
-    if (err) {
-      console.log(err);
-    } else {
-      if (foundUsers) {
-        res.render("booksFeed", {
-          unlikedPost: "r",
-          usersWithPosts: foundUsers,
-          renderDay: renderDay,
-          renderDate: renderDate,
-        });
+  if (req.isAuthenticated()) {
+    const renderDate = date.getDate();
+    let renderDay = new Date();
+    User.find({ isPost: 1 }, function (err, foundUsers) {
+      if (err) {
+        console.log(err);
+      } else {
+        if (foundUsers) {
+          res.render("booksFeed", {
+            postsLikedByUser: req.user.likedPosts,
+            usersWithPosts: foundUsers,
+            renderDay: renderDay,
+            renderDate: renderDate,
+          });
+        }
       }
-    }
-  });
+      render;
+    });
+  } else {
+    res.redirect("/");
+  }
 });
 app.get("/logout", function (req, response) {
   req.logout(function (req, res) {
@@ -194,8 +204,12 @@ app.get("/account", function (req, res) {
         console.log(err);
       } else {
         if (foundUser) {
+          var sumOfLikes = 0;
+          foundUser.posts.forEach((post) => (sumOfLikes += post.likes));
+          console.log(sumOfLikes);
           res.render("account", {
-            articles: foundUser.posts.length,
+            likesAmount: sumOfLikes,
+            articlesAmount: foundUser.posts.length,
             profileImage: foundUser.profile,
             username: foundUser.username,
             nickname: foundUser.nickname,
@@ -270,8 +284,76 @@ app.post("/account", function (req, res) {
     }
   }
 });
-app.post("/booksFeed", function (req, res) {
-  console.log(req.body);
+
+app.post("/booksFeed", async function (req, res) {
+  //check if he liked or commented
+  if (req.body.like) {
+    //pull out the users that liked it already
+    const users = await User.find({
+      likedPosts: { $elemMatch: { $in: req.body.like } },
+    });
+    const postingUser = await User.findOne({
+      posts: { $elemMatch: { _id: req.body.like } },
+    });
+    console.log(users, req.user);
+    const isPostLiked = users.length !== 0;
+    console.log(isPostLiked);
+    //checks if the user liked it already
+    var isFound = false;
+    if (isPostLiked) {
+      isFound = users.some((user) => {
+        if (user.id === req.user.id) {
+          return true;
+        }
+        return false;
+      });
+    }
+    console.log(isFound);
+    if (isFound) {
+      console.log("you probably regret liking it");
+      await User.update(
+        { _id: req.user.id },
+        { $pull: { likedPosts: req.body.like } }
+      );
+      await User.findOneAndUpdate(
+        { _id: postingUser.id, "posts._id": req.body.like },
+        { $inc: { "posts.$.likes": -1 } }
+      );
+      res.redirect("/booksFeed");
+    } else {
+      User.updateOne(
+        {
+          posts: { $elemMatch: { _id: req.body.like } },
+        },
+        {
+          $inc: { "posts.$.likes": 1 },
+        },
+        function (err) {
+          if (err) {
+            console.log(err);
+          } else {
+            User.updateOne(
+              {
+                _id: req.user.id,
+              },
+              {
+                $push: { likedPosts: req.body.like },
+              },
+              function (err) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  res.redirect("/booksFeed");
+                }
+              }
+            );
+          }
+        }
+      );
+    }
+  }
+  if (req.body.comment) {
+  }
 });
 app.post("/getBooks", async function (req, res) {
   let payload = req.body.payload.trim();
@@ -307,6 +389,7 @@ app.post("/submit", function (req, res) {
     } else {
       if (foundUser) {
         foundUser.posts.push({
+          likes: 0,
           review: submittedReview,
           bookImage: bookImage,
           bookTitle: bookTitle,
@@ -335,9 +418,13 @@ app.post("/register", function (req, res) {
         console.log(err);
         res.redirect("/register");
       } else {
-        passport.authenticate("local")(req, res, function () {
-          res.redirect("/account");
-        });
+        passport.authenticate("local", { failureRedirect: "/unauthorized" })(
+          req,
+          res,
+          function () {
+            res.redirect("/account");
+          }
+        );
       }
     }
   );
@@ -348,14 +435,21 @@ app.post("/", function (req, res) {
     username: req.body.username,
     password: req.body.password,
   });
-
   req.login(user, function (err) {
     if (err) {
       console.log(err);
     } else {
-      passport.authenticate("local")(req, res, function () {
-        res.redirect("/booksFeed");
-      });
+      passport.authenticate("local", { failureRedirect: "/unauthorized" })(
+        req,
+        res,
+        function (err) {
+          if (err) {
+            console.log(err);
+          } else {
+            res.redirect("/booksFeed");
+          }
+        }
+      );
     }
   });
 });
