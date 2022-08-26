@@ -54,6 +54,7 @@ const commentSchema = new mongoose.Schema({
 const postSchema = new mongoose.Schema({
   bookImage: String,
   username: String,
+  nickname: String,
   profile: String,
   bookTitle: String,
   review: String,
@@ -169,7 +170,18 @@ app.get("/booksFeed", function (req, res) {
         console.log(err);
       } else {
         if (foundUsers) {
+          var availablePosts = [];
+          foundUsers.forEach((user) => {
+            user.posts.forEach((post) => {
+              availablePosts.unshift(post);
+            });
+          });
+          const sortedDesc = availablePosts.sort(
+            (objA, objB) => Number(objB.date) - Number(objA.date)
+          );
+          console.log(sortedDesc);
           res.render("booksFeed", {
+            postsByDate: sortedDesc,
             postsLikedByUser: req.user.likedPosts,
             usersWithPosts: foundUsers,
             renderDay: renderDay,
@@ -177,7 +189,6 @@ app.get("/booksFeed", function (req, res) {
           });
         }
       }
-      render;
     });
   } else {
     res.redirect("/");
@@ -233,9 +244,14 @@ app.post("/account", function (req, res) {
         res.send(err);
       } else {
         if (req.body.nickname) {
+          console.log(req.body.nickname);
           User.findByIdAndUpdate(
             req.user.id,
             {
+              $set: {
+                "posts.$[].profile": "uploads/" + fileName,
+                "posts.$[].nickname": `${req.body.nickname}`,
+              },
               profile: "uploads/" + fileName,
               nickname: req.body.nickname,
             },
@@ -252,6 +268,9 @@ app.post("/account", function (req, res) {
             req.user.id,
             {
               profile: "uploads/" + fileName,
+              $set: {
+                "posts.$[].nickname": `${req.body.nickname}`,
+              },
             },
             function (err, foundUser) {
               if (err) {
@@ -270,6 +289,9 @@ app.post("/account", function (req, res) {
         req.user.id,
         {
           nickname: req.body.nickname,
+          $set: {
+            "posts.$[].nickname": `${req.body.nickname}`,
+          },
         },
         function (err, foundUser) {
           if (err) {
@@ -389,6 +411,8 @@ app.post("/submit", function (req, res) {
     } else {
       if (foundUser) {
         foundUser.posts.push({
+          username: foundUser.username,
+          nickname: foundUser.nickname,
           likes: 0,
           review: submittedReview,
           bookImage: bookImage,
