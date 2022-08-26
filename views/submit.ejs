@@ -73,10 +73,11 @@ result.textContent = 0 + "/" + limit;
 postText.addEventListener("input", function(){
   var textLength = postText.value.length;
   result.textContent = textLength+ "/" + limit;
-  if (textLength> limit){
+  if (textLength> limit|| textLength<1){
     postText.style.borderColor = "#ff2851";
     postText.style.color= "#ff2851";
     submitButton.disabled = true;
+    result.style.color = "#ff2851";
   } else{
     submitButton.disabled = false;
     postText.style.borderColor = "#b2b2b2";
