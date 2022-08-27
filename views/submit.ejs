@@ -89,7 +89,7 @@ postText.addEventListener("input", function(){
   function  sendData(e){
     clearTimeout(timer);
     const searchResults = document.getElementById("searchResults");
-    searchResults.innerHTML = `<div style=" margin-left:250px;" class="row justify-cotent-center"><lottie-player src="https://assets5.lottiefiles.com/packages/lf20_2scSKA.json"  background="transparent"  speed="1"  style="width: 200px; height: 200px; "  loop autoplay></lottie-player></div>`
+    searchResults.innerHTML = `<div style=" " class="row justify-cotent-center"><lottie-player src="https://assets5.lottiefiles.com/packages/lf20_2scSKA.json"  background="transparent"  speed="1"  style="width: 200px; height: 200px; left: 35%; position: relative;"  loop autoplay></lottie-player></div>`
     timer = setTimeout(()=>{
       console.log(e.value);
     let match = e.value.match(/^[a-zA-Z ]*/);

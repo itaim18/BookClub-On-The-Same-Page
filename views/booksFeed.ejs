@@ -83,7 +83,11 @@
                   </li></button> -->
                   <% let likedPost="far fa-heart"%>
                   <% if(postsLikedByUser.includes(post.id)) {  likedPost="fa fa-heart"} %>
-                   <button type="submit" onclick="toggleLikePost(this)" name="like" value=<%=post.id %> data-post-id="postButton"   id="bookPost-btn" ><li><i class="<%= likedPost %> " style="color: #e20d0d;"></i>   <span id="likes-count" class="small ins ps-2"><%= post.likes %></span></li>
+                   <button type="submit"  onclick="likedPost(this)" name="like" value=<%=post.id %> data-post-id="postButton"   id="bookPost-btn" >
+                    <li>
+                      <i class="<%= likedPost %>" id="<%= post.id %>" style="color: #e20d0d;"></i>
+                         <span id="amount-<%= post.id %>" class="small ins ps-2"><%= post.likes %></span>
+                    </li>
                   </button>
                 </ul>
                </form>
@@ -107,6 +111,25 @@
     </section>
   </div>
   
+  <script type="text/javascript">
+    function likedPost(ev){
+      
+      console.log(ev.value);
+     
+    const recentLikedPost =document.getElementById(ev.value) ;
+    const showLikesAmount = document.getElementById(`amount-${ev.value}`);
+    let amountLikedPost = Number(showLikesAmount.innerHTML);
 
+    console.log(amountLikedPost);
+    if (recentLikedPost.className==="fa fa-heart"){
+      amountLikedPost -= 1;
+      showLikesAmount.innerHTML = amountLikedPost;
+    recentLikedPost.className="far fa-heart"} else{
+      amountLikedPost += 1;
+      showLikesAmount.innerHTML = amountLikedPost;
+    recentLikedPost.className="fa fa-heart"
+    }
+    };
+    </script>
 
 <%- include('partials/footer') %>

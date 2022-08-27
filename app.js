@@ -244,7 +244,6 @@ app.post("/account", function (req, res) {
         res.send(err);
       } else {
         if (req.body.nickname) {
-          console.log(req.body.nickname);
           User.findByIdAndUpdate(
             req.user.id,
             {
@@ -317,10 +316,9 @@ app.post("/booksFeed", async function (req, res) {
     const postingUser = await User.findOne({
       posts: { $elemMatch: { _id: req.body.like } },
     });
-    console.log(users, req.user);
+
     const isPostLiked = users.length !== 0;
-    console.log(isPostLiked);
-    //checks if the user liked it already
+
     var isFound = false;
     if (isPostLiked) {
       isFound = users.some((user) => {
@@ -330,9 +328,8 @@ app.post("/booksFeed", async function (req, res) {
         return false;
       });
     }
-    console.log(isFound);
+
     if (isFound) {
-      console.log("you probably regret liking it");
       await User.update(
         { _id: req.user.id },
         { $pull: { likedPosts: req.body.like } }
@@ -341,7 +338,7 @@ app.post("/booksFeed", async function (req, res) {
         { _id: postingUser.id, "posts._id": req.body.like },
         { $inc: { "posts.$.likes": -1 } }
       );
-      res.redirect("/booksFeed");
+      // res.redirect("/booksFeed");
     } else {
       User.updateOne(
         {
@@ -364,9 +361,10 @@ app.post("/booksFeed", async function (req, res) {
               function (err) {
                 if (err) {
                   console.log(err);
-                } else {
-                  res.redirect("/booksFeed");
                 }
+                //  else {
+                //   res.redirect("/booksFeed");
+                // }
               }
             );
           }
@@ -377,6 +375,7 @@ app.post("/booksFeed", async function (req, res) {
   if (req.body.comment) {
   }
 });
+
 app.post("/getBooks", async function (req, res) {
   let payload = req.body.payload.trim();
   let search = await https
