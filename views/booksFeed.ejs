@@ -30,8 +30,8 @@
           <div class="card-body border-bottom pb-2">
            <% postsByDate.forEach((post)=>{%> 
                    
-        <div>
-          <div class="d-flex p-3 border-bottom">
+        <div class="border-bottom">
+          <div class="d-flex p-3">
             <img src=<%= post.profile %> class="rounded-circle" 
               height="50" width="50" alt="Avatar" loading="lazy" />
             <div class="d-flex w-100 ps-3" style="margin-left: 3%;">
@@ -75,12 +75,12 @@
                 <i class="fa-solid fa-2x fa-quote-right"></i>
                
                 </div>
-                <form action="/booksFeed" method="post">
+                
+              </div></div></div>
+              <div class="d-flex flex-row add-comment-section mt-4 mb-4">
+              <form action="/booksFeed" method="post">
                 <ul class="list-unstyled d-flex  mb-0 pe-xl-5">
-                  <!--for other time-->
-                  <!-- <button  type="submit" name="comment" value=<%=post.id %> id="bookPost-btn" > <li style="margin-right: 10px;">
-                    <i class="far fa-comment" style="color: #007bff;" ></i>
-                  </li></button> -->
+                  
                   <% let likedPost="far fa-heart"%>
                   <% if(postsLikedByUser.includes(post.id)) {  likedPost="fa fa-heart"} %>
                    <button type="submit"  onclick="likedPost(this)" name="like" value=<%=post.id %> data-post-id="postButton"   id="bookPost-btn" >
@@ -90,11 +90,10 @@
                     </li>
                   </button>
                 </ul>
-               </form>
-              </div>
-              
-            </div>
-          </div>
+               </form></div>
+              <div class="d-flex flex-row add-comment-section mt-4 mb-4"><img class="img-fluid img-responsive rounded-circle mr-2" src=<%=user.profile%> width="38"><input type="text" class="form-control mr-3" placeholder="Add comment"><button class="btn btn-primary" type="button">Comment</button></div>
+            
+          
           
              </div>
              <% }) %> 

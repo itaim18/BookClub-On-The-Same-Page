@@ -181,6 +181,7 @@ app.get("/booksFeed", function (req, res) {
           );
           console.log(sortedDesc);
           res.render("booksFeed", {
+            user: req.user,
             postsByDate: sortedDesc,
             postsLikedByUser: req.user.likedPosts,
             usersWithPosts: foundUsers,
@@ -268,7 +269,7 @@ app.post("/account", function (req, res) {
             {
               profile: "uploads/" + fileName,
               $set: {
-                "posts.$[].nickname": `${req.body.nickname}`,
+                "posts.$[].profile": "uploads/" + fileName,
               },
             },
             function (err, foundUser) {
