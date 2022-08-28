@@ -18,6 +18,7 @@ const { JsonWebTokenError } = require("jsonwebtoken");
 const FacebookStrategy = require("passport-facebook").Strategy;
 var favicon = require("serve-favicon");
 var path = require("path");
+const process = require("process");
 const app = express();
 
 app.use(upload());
@@ -34,7 +35,7 @@ app.use(
 
 app.use(
   session({
-    secret: "Our little secret.",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
   })
@@ -44,7 +45,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(favicon(path.join(__dirname, "public", "logo.ico")));
 mongoose.connect(
-  "mongodb+srv://ItaiM:ASdlkjty65@cluster0.nqhz5.mongodb.net/userDB",
+  "mongodb+srv://" +
+    process.env.MONGO_USER +
+    ":" +
+    process.env.MONGO_PASSWORD +
+    "@cluster0.nqhz5.mongodb.net/userDB",
   {
     useNewUrlParser: true,
   },
@@ -488,6 +493,12 @@ app.post("/", function (req, res) {
   });
 });
 
-app.listen(3000, function () {
-  console.log("Server started on port 3000.");
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
+app.listen();
+
+app.listen(port, function () {
+  console.log("Server started successfully");
 });
