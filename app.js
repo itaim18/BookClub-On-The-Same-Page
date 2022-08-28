@@ -14,7 +14,7 @@ const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
 const { boolean } = require("mathjs");
-const { JsonWebTokenError } = require("jsonwebtoken");
+
 const FacebookStrategy = require("passport-facebook").Strategy;
 var favicon = require("serve-favicon");
 var path = require("path");
