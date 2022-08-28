@@ -4,7 +4,7 @@
   "description": "A social site based on book reviews",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "author": "Itai.M",
   "license": "ISC",
