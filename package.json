@@ -19,6 +19,7 @@
     "express-session": "^1.17.3",
     "express-fileupload": "1.4.0",
     "filereader": "^0.10.3",
+    "mathjs": "11.1.0",
     "mongoose": "^6.5.1",
     "mongoose-findorcreate": "^3.0.0",
     "passport": "^0.6.0",
