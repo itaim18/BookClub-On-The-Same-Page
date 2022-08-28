@@ -43,7 +43,7 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(favicon(path.join(__dirname, "public", "logo.ico")));
+app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 mongoose.connect(
   "mongodb+srv://" +
     process.env.MONGO_USER +
