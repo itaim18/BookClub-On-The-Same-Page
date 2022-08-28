@@ -43,11 +43,19 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(favicon(path.join(__dirname, "public", "logo.ico")));
-mongoose.connect("mongodb://localhost:27017/userDB", { useNewUrlParser: true });
+mongoose.connect(
+  "mongodb+srv://ItaiM:ASdlkjty65@cluster0.nqhz5.mongodb.net/userDB",
+  {
+    useNewUrlParser: true,
+  },
+  { useUnifiedTopology: true }
+);
 // mongoose.set("useCreateIndex", true);
 
 const commentSchema = new mongoose.Schema({
   commenterName: String,
+  commenterNickName: String,
+  commenterProfile: String,
   comment: String,
   commentLikes: Number,
 });
@@ -60,7 +68,7 @@ const postSchema = new mongoose.Schema({
   review: String,
   date: Date,
   likes: Number,
-  // comments: commentSchema,
+  comments: commentSchema,
 });
 const userSchema = new mongoose.Schema({
   nickname: String,
@@ -308,6 +316,7 @@ app.post("/account", function (req, res) {
 });
 
 app.post("/booksFeed", async function (req, res) {
+  console.log(req.body);
   //check if he liked or commented
   if (req.body.like) {
     //pull out the users that liked it already
@@ -379,6 +388,7 @@ app.post("/booksFeed", async function (req, res) {
 
 app.post("/getBooks", async function (req, res) {
   let payload = req.body.payload.trim();
+
   let search = await https
     .get(
       "https://openlibrary.org/search.json?q=" + payload + "&limit=5",
@@ -388,9 +398,9 @@ app.post("/getBooks", async function (req, res) {
           data += chunk;
         });
         resp.on("end", () => {
-          let search = JSON.parse(data).docs;
-
-          res.send({ payload: search });
+          let search = JSON.parse(data);
+          console.log(search);
+          res.send({ payload: search.docs });
         });
       }
     )
